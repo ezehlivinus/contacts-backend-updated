@@ -8,7 +8,7 @@ const errorHandler = require("./middleware/errorHandler");
 const app = express();
 
 app.use(express.json());
-app.use("/api/contacts", require("./routes/contactRoutes"));
+app.use("/api/contacts", require("./routes/contact.routes"));
 app.use(errorHandler);
 
 module.exports = app;
