@@ -1,6 +1,8 @@
 const express = require("express");
 const router = express.Router();
 const contactController = require("../controllers/contact.controller");
+const validator = require("../middleware/validator.middleware");
+const { UpdateContactSchema } = require("../schemas/contact.schema");
 
 router.route("/")
   .get(contactController.getContacts)
@@ -8,7 +10,7 @@ router.route("/")
 
 router.route("/:id")
   .get(contactController.getContact)
-  .put(contactController.updateContact)
+  .put([validator(UpdateContactSchema)], contactController.updateContact)
   .delete(contactController.deleteContact);
 
 module.exports = router;

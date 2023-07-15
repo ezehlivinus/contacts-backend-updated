@@ -1,4 +1,6 @@
 const Contact = require("../models/contactModel");
+const contactService = require("../services/contact.service");
+const { CreateContactSchema} = require("../schemas/contact.schema");
 
 class ContactController {
   async getContacts(req, res) {
@@ -9,17 +11,19 @@ class ContactController {
 
   async createContact(req, res) {
     console.log("The request body is:", req.body);
-    const { name, email, phone } = req.body;
-    if (!name || !email || !phone) {
-      res.status(400)
-      throw new Error("All fields are mandatory !")
-    }
+    // synchronous validation
+      // const { value, error } = CreateContactSchema.validate(req.body);
+      // console.log("The value is:", value);
+      // if (error) {
+      // const message = error.details[0].message
+      // res.status(400)
+      //   throw new Error(message)
+      // }
 
-    const contact = await Contact.create({
-      name,
-      email,
-      phone,
-    });
+    // asynchronous validation
+      const value = await CreateContactSchema.validateAsync(req.body);
+
+    const contact = await contactService.create(value);
     res.status(201).json(contact);
   };
 
@@ -33,20 +37,24 @@ class ContactController {
   };
 
   async updateContact(req, res) {
-    const contact = await Contact.findById(req.params.id);
-    if (!contact) {
-      res.status(404);
-      throw new Error("Contact not found");
-    }
 
-    const updateContact = await Contact.findByIdUpdate(
+    const updateContact = await Contact.findByIdAndUpdate(
       req.params.id,
       req.body,
       { new: true }
     );
 
+    if (!updateContact) {
+      return res.status(404).send({
+        success: false,
+        message: "Contact not found",
+      });
+    }
 
-    res.status(201).json(updateContact);
+    res.status(200).send({
+      success: true, 
+      data: updateContact
+    });
   };
 
   async deleteContact(req, res) {
